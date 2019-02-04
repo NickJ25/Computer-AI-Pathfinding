@@ -6,6 +6,76 @@
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h> 
 
+bool show_about_window = false;
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+void update() {
+
+}
+
+void draw() {
+
+}
+
+void menuDraw() {
+	//if (show_demo_window)
+	//	ImGui::ShowDemoWindow(&show_demo_window);
+
+	// Options Flags
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoResize;
+
+	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(240, 140), ImGuiCond_Once);
+
+	// Options
+	ImGui::Begin("Pathfinding Options", NULL, window_flags);
+
+	// UI
+	ImGui::PushItemWidth(100);
+	const char* items[] = { "A*", "BBBB", "CCCC" };
+	static int item_current = 0;
+	ImGui::Combo("Algorithm", &item_current, items, IM_ARRAYSIZE(items));
+
+	// Start Node
+	static char str0[2] = "A";
+	ImGui::PushItemWidth(100);
+	ImGui::InputText("Start Node", str0, IM_ARRAYSIZE(str0));
+
+	// End Node
+	ImGui::PushItemWidth(100);
+	static char str1[2] = "B";
+	ImGui::InputText("End Node", str1, IM_ARRAYSIZE(str1));
+
+	// Find Button
+	if (ImGui::Button("Find")) {
+
+	}
+	ImGui::SameLine();
+	// About Button
+	if (ImGui::Button("About")) {
+		if(!show_about_window)
+			show_about_window = true;
+		else
+			show_about_window = false;
+	}
+			
+	ImGui::Text("avg %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+
+
+	// 3. Show another simple window.
+	if (show_about_window)
+	{
+		//ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(240, 140), ImGuiCond_Once);
+		ImGui::Begin("About", &show_about_window, window_flags);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Text("A simple pathfinding showcase \ncreated by Niclas Jonsson and \nDavid Walbancke. \n\nThis project uses:\n-dear imgui (v1.67)\n-glew \n-glfw");
+		ImGui::End();
+	}
+
+}
+
 static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -25,7 +95,7 @@ int main(int, char**)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);    
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "Computer AI - Pathfinder", NULL, NULL);
 	if (window == NULL)
 		return 1;
 	glfwMakeContextCurrent(window);
@@ -51,56 +121,21 @@ int main(int, char**)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	bool show_demo_window = true;
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
+
+		update();
+		draw();
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
+		// Draw Menu
+		menuDraw();
 
 		// Rendering
 		ImGui::Render();
