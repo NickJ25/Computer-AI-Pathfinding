@@ -76,7 +76,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\dev\glew-2.1.0\include;..\..\..\dev\glfw-3.2.1.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>glew32d.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\dev\glew-2.1.0\lib\Debug\Win32;..\..\..\dev\glfw-3.2.1.bin.WIN32\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,6 +120,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="vendors\imgui.cpp" />
+    <ClCompile Include="vendors\imgui_demo.cpp" />
+    <ClCompile Include="vendors\imgui_draw.cpp" />
+    <ClCompile Include="vendors\imgui_impl_glfw.cpp" />
+    <ClCompile Include="vendors\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="vendors\imgui_widgets.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vendors\imconfig.h" />
+    <ClInclude Include="vendors\imgui.h" />
+    <ClInclude Include="vendors\imgui_impl_glfw.h" />
+    <ClInclude Include="vendors\imgui_impl_opengl3.h" />
+    <ClInclude Include="vendors\imgui_internal.h" />
+    <ClInclude Include="vendors\imstb_rectpack.h" />
+    <ClInclude Include="vendors\imstb_textedit.h" />
+    <ClInclude Include="vendors\imstb_truetype.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vendors\imgui.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
