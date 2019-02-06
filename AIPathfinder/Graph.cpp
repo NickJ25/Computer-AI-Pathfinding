@@ -45,12 +45,60 @@ void Graph::parseFile(const char * filename)
 	}
 }
 
+void Graph::drawCircle(glm::vec2 pos, glm::vec4 color)
+{
+
+}
+
+void Graph::drawLine(glm::vec2 start, glm::vec2 end, glm::vec4 colour)
+{
+
+}
+
+// Check colour of Edge/Vertex depending on it's current status
+glm::vec4 Graph::checkColour(status sta)
+{
+	glm::vec4 color;
+	switch (sta) {
+	case INACTIVE:
+		color = glm::vec4(1, 1, 1, 1); // White
+		break;
+	case ACTIVE:
+		color = glm::vec4(0.043, 0.980, 0, 1); // Green
+		break;
+	case START: 
+		color = glm::vec4(0.984, 0.980, 0.074, 1); // Red
+		break;
+	case TARGET:
+		color = glm::vec4(0.894, 0.188, 0.066, 1); // Yellow
+		break;
+	default:
+		color = glm::vec4(0, 0, 0, 1); // Black
+		break;
+	}
+	return color;
+}
+
 Graph::Graph(const char * filename)
 {
+	//m_shader = new Shader("Image.vert", "Image.frag");
 	parseFile(filename);
 }
 
 void Graph::draw()
 {
+	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 720.0f, 0.0f, -1.0f, 1.0f);
+	// Draw Vertex
+	for (int i = 0; m_vertices.size(); i++) {
+		//drawCircle(m_vertices[i].position, );
+	}
 
+	// Draw Edge
+	for (int i = 0; m_edges.size(); i++) {
+		//drawLine()
+	}
+}
+
+void Graph::find(algorithm algo, int start, int end)
+{
 }

@@ -121,6 +121,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="vendors\imgui.cpp" />
     <ClCompile Include="vendors\imgui_demo.cpp" />
     <ClCompile Include="vendors\imgui_draw.cpp" />
@@ -131,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="vendors\imconfig.h" />
     <ClInclude Include="vendors\imgui.h" />
     <ClInclude Include="vendors\imgui_impl_glfw.h" />

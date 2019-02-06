@@ -40,7 +40,7 @@ void menuDraw() {
 
 	// UI
 	ImGui::PushItemWidth(100);
-	const char* items[] = { "A*", "BBBB", "CCCC" };
+	const char* items[] = { "A*", "IDA*", "Dijkstra's" };
 	static int item_current = 0;
 	ImGui::Combo("Algorithm", &item_current, items, IM_ARRAYSIZE(items));
 
