@@ -2,12 +2,19 @@
 #include "vendors/imgui.h"
 #include "vendors/imgui_impl_glfw.h"
 #include "vendors/imgui_impl_opengl3.h"
+#include <glm/glm.hpp>
 #include <stdio.h>
+#include <iostream>
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h> 
+#include "Graph.h"
 
+using namespace std;
 bool show_about_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+Graph* mainGraph = new Graph("random64_4_1485816605.dot");
+
 
 void update() {
 

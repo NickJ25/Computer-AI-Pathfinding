@@ -76,11 +76,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\dev\glew-2.1.0\include;..\..\..\dev\glfw-3.2.1.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\dev\glew-2.1.0\include;..\..\..\dev\glfw-3.2.1.bin.WIN32\include;..\..\..\dev\boost_1_69_0\;..\..\..\dev\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glew32d.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\dev\glew-2.1.0\lib\Debug\Win32;..\..\..\dev\glfw-3.2.1.bin.WIN32\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\dev\glew-2.1.0\lib\Debug\Win32;..\..\..\dev\glfw-3.2.1.bin.WIN32\lib-vc2015;..\..\..\boost_1_69_0\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,6 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="vendors\imgui.cpp" />
     <ClCompile Include="vendors\imgui_demo.cpp" />
     <ClCompile Include="vendors\imgui_draw.cpp" />
@@ -129,6 +130,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="vendors\imconfig.h" />
     <ClInclude Include="vendors\imgui.h" />
     <ClInclude Include="vendors\imgui_impl_glfw.h" />
