@@ -143,6 +143,8 @@
     <ClInclude Include="vendors\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Image.frag" />
+    <None Include="Shaders\Image.vert" />
     <None Include="vendors\imgui.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

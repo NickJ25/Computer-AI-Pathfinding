@@ -13,15 +13,18 @@ using namespace std;
 bool show_about_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-Graph* mainGraph = new Graph("random64_4_1485816605.dot");
+Graph* mainGraph;
 
+void init() {
+	mainGraph = new Graph("random64_4_1485816605.dot");
+}
 
 void update() {
 
 }
 
 void draw() {
-
+	mainGraph->draw();
 }
 
 void menuDraw() {
@@ -128,13 +131,15 @@ int main(int, char**)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
+	init();
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 
 		update();
-		draw();
+		//draw();
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -152,8 +157,10 @@ int main(int, char**)
 		glViewport(0, 0, display_w, display_h);
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+		draw();
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);
 	}

@@ -19,6 +19,9 @@
     <Filter Include="Header Files\Imgui">
       <UniqueIdentifier>{ef8f8dcb-f86e-4b76-906d-56323ddd87cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{f00720fd-c7aa-43b3-a56e-2ec0837c62fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -84,6 +87,12 @@
   <ItemGroup>
     <None Include="vendors\imgui.ini">
       <Filter>Source Files\Imgui</Filter>
+    </None>
+    <None Include="Shaders\Image.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Image.vert">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
