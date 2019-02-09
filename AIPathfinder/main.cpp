@@ -139,7 +139,6 @@ int main(int, char**)
 		glfwPollEvents();
 
 		update();
-		//draw();
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();

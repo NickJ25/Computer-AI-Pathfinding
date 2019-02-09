@@ -39,8 +39,8 @@ void Graph::parseFile(const char * filename)
 			m_edges.push_back(n);
 		}
 	}
-
-	std::cout << m_vertices.size() << std::endl;
+	std::cout << m_vertices.size() << " vertices found!" << std::endl;
+	std::cout << m_edges.size() << " edges found!" << std::endl;
 
 	//for (int i = 0; i < m_vertices.size(); i++) {
 	//	std::cout << "=================================================================" << std::endl;
@@ -51,7 +51,7 @@ void Graph::parseFile(const char * filename)
 	//}
 }
 
-void Graph::drawCircle(glm::vec2 pos, glm::vec4 color)
+void Graph::createCircle(glm::vec2 pos, glm::vec4 color, int num)
 {
 	GLfloat twicePi = 2.0f * 3.14159265359;
 
@@ -63,7 +63,7 @@ void Graph::drawCircle(glm::vec2 pos, glm::vec4 color)
 	// Calculate the points of the circle
 	for (int i = 0; i < numOfVertices * 3; i += 3) {
 		circleCoords[i] = circleCentre.x + (radius * cos(i *  twicePi / numOfVertices));
-		circleCoords[i + 1] = circleCentre.y +(radius * sin(i * twicePi / numOfVertices));
+		circleCoords[i + 1] = 720 - (circleCentre.y +(radius * sin(i * twicePi / numOfVertices)));
 		circleCoords[i + 2] = 0;
 	}
 
@@ -72,9 +72,7 @@ void Graph::drawCircle(glm::vec2 pos, glm::vec4 color)
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glBindVertexArray(vertexVAO[num]); //*&
 
 	// Pass vertex (circle points) into the shader
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -87,30 +85,24 @@ void Graph::drawCircle(glm::vec2 pos, glm::vec4 color)
 	// Unbind all
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINE_LOOP, 0, (numOfVertices)); //GL_LINE_LOOP
-	glBindVertexArray(0);
 }
 
-void Graph::drawLine(glm::vec2 start, glm::vec2 end, glm::vec4 color)
+void Graph::createLine(glm::vec2 start, glm::vec2 end, glm::vec4 color, int num)
 {
 	const int coordNum = 3 * 2;
 	GLfloat lineCoords[coordNum];
 	lineCoords[0] = start.x;
-	lineCoords[1] = start.y;
+	lineCoords[1] = 720 - start.y;
 	lineCoords[2] = 0;
 	lineCoords[3] = end.x;
-	lineCoords[4] = end.y;
+	lineCoords[4] = 720 - end.y;
 	lineCoords[5] = 0;
 
 	m_shader->use();
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glBindVertexArray(edgeVAO[num]);
 
 	// Pass vertex (circle points) into the shader
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -122,10 +114,6 @@ void Graph::drawLine(glm::vec2 start, glm::vec2 end, glm::vec4 color)
 
 	// Unbind all
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, 2); //GL_LINE_LOOP
 	glBindVertexArray(0);
 
 }
@@ -158,29 +146,44 @@ Graph::Graph(const char * filename)
 {
 	m_shader = new Shader("Shaders/Image.vert", "Shaders/Image.frag");
 	parseFile(filename);
-}
 
-void Graph::draw()
-{
-	m_shader->use();
-	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 720.0f, 0.0f, -1.0f, 1.0f); 
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgProj"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgView"), 1, GL_FALSE, glm::value_ptr(view));
+	vertexVAO = new GLuint[m_vertices.size()];
+	glGenVertexArrays(m_vertices.size(), vertexVAO);
+	edgeVAO = new GLuint[m_edges.size()];
+	glGenVertexArrays(m_edges.size(), edgeVAO);
 
 	// Draw Vertex
 	for (int i = 0; i < m_vertices.size(); i++) {
-		drawCircle(m_vertices[i].position, checkColour(m_vertices[i].vertexStatus));
-		drawCircle(glm::vec2(0, 0), glm::vec4(0, 0, 0, 0.5));
+		createCircle(m_vertices[i].position, checkColour(m_vertices[i].vertexStatus), i);
 		m_vertices[0].vertexStatus = ACTIVE;
 	}
 
 	// Draw Edge
 	for (int i = 0; i < m_edges.size(); i++) {
-		drawLine(m_edges[i].from->position, m_edges[i].to->position, glm::vec4(1, 1, 1, 0.5));
+		createLine(m_edges[i].from->position, m_edges[i].to->position, glm::vec4(1, 1, 1, 0.5), i);
 	}
-	
+}
+
+void Graph::draw()
+{
+	m_shader->use();
+	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 720.0f, 0.0f, -1.0f, 1.0f);
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgProj"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgView"), 1, GL_FALSE, glm::value_ptr(view));
+
+	for (int i = 0; i < m_vertices.size(); i++) {
+		glBindVertexArray(vertexVAO[i]);
+		glDrawArrays(GL_LINE_LOOP, 0, 8);
+		glBindVertexArray(0);
+	}
+
+	for (int i = 0; i < m_edges.size(); i++) {
+		glBindVertexArray(edgeVAO[i]);
+		glDrawArrays(GL_LINES, 0, 2);
+		glBindVertexArray(0);
+	}
 }
 
 void Graph::find(algorithm algo, int start, int end)

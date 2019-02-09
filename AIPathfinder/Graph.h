@@ -38,8 +38,10 @@ private:
 	std::ifstream m_graphFile;
 	Shader* m_shader;
 
-	void drawCircle(glm::vec2 pos, glm::vec4 color);
-	void drawLine(glm::vec2 start, glm::vec2 end, glm::vec4 colour);
+	GLuint *vertexVAO, *edgeVAO;
+
+	void createCircle(glm::vec2 pos, glm::vec4 color, int num);
+	void createLine(glm::vec2 start, glm::vec2 end, glm::vec4 colour, int num);
 	glm::vec4 checkColour(status sta);
 public:
 	enum algorithm {
