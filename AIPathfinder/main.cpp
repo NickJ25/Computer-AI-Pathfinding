@@ -11,7 +11,10 @@
 
 using namespace std;
 bool show_about_window = false;
+bool show_settings_window = false;
+static float cameraSpeed = 4.0f;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 
 Graph* mainGraph;
 
@@ -23,8 +26,8 @@ void update() {
 
 }
 
-void draw() {
-	mainGraph->draw();
+void draw(glm::mat4 view) {
+	mainGraph->draw(view);
 }
 
 void menuDraw() {
@@ -69,18 +72,34 @@ void menuDraw() {
 		else
 			show_about_window = false;
 	}
-			
+	ImGui::SameLine();
+	if (ImGui::Button("Settings")) {
+		if (!show_settings_window)
+			show_settings_window = true;
+		else
+			show_settings_window = false;
+	}
+
 	ImGui::Text("avg %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
 
-	// 3. Show another simple window.
+	// About window
 	if (show_about_window)
 	{
 		//ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_Once);
 		ImGui::SetNextWindowSize(ImVec2(240, 140), ImGuiCond_Once);
-		ImGui::Begin("About", &show_about_window, window_flags);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Begin("About", &show_about_window, window_flags); 
 		ImGui::Text("A simple pathfinding showcase \ncreated by Niclas Jonsson and \nDavid Walbancke. \n\nThis project uses:\n-dear imgui (v1.67)\n-glew \n-glfw");
+		ImGui::End();
+	}
+
+	if (show_settings_window)
+	{
+		ImGui::SetNextWindowSize(ImVec2(330, 140), ImGuiCond_Once);
+		ImGui::Begin("Settings", &show_about_window, window_flags);  
+		ImGui::Text("Camera Options");
+		ImGui::InputFloat("Move Increment", &cameraSpeed, 0.5f, 1.0f, "%.1f");
 		ImGui::End();
 	}
 
@@ -133,12 +152,57 @@ int main(int, char**)
 
 	init();
 
+	ImVec2 prevPos;
+	ImVec2 currentPos;
+	bool drag = false;
+	bool currentDragging = false;
+	float xPos = 0;
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
+		if (ImGui::IsKeyPressed(GLFW_KEY_Q, true)) {
+			mainGraph->scale(1.1);
+		}
+		if (ImGui::IsKeyPressed(GLFW_KEY_E, true)) {
+			mainGraph->scale(0.9);
+		}
 
-		update();
+		if (ImGui::IsKeyPressed(GLFW_KEY_A, true)) {
+			view = glm::translate(view, glm::vec3(cameraSpeed, 0.0, 0.0));
+		}
+		if (ImGui::IsKeyPressed(GLFW_KEY_D, true)) {
+			view = glm::translate(view, glm::vec3(-cameraSpeed, 0.0, 0.0));
+		}
+		if (ImGui::IsKeyPressed(GLFW_KEY_W, true)) {
+			view = glm::translate(view, glm::vec3(0.0, cameraSpeed, 0.0));
+		}
+		if (ImGui::IsKeyPressed(GLFW_KEY_S, true)) {
+			view = glm::translate(view, glm::vec3(0.0, -cameraSpeed, 0.0));
+		}
+
+		//view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//update();
+		//if (ImGui::IsMouseClicked(GLFW_MOUSE_BUTTON_1, false)) {
+		//	//cout << "FIRST CLICK" << endl;
+		//	prevPos = ImGui::GetMousePos();
+		//}
+
+		//if (ImGui::IsMouseClicked(GLFW_MOUSE_BUTTON_1, true)) {
+		//	currentPos = ImGui::GetMousePos();
+		//	//cout << "CONTINUE CLICK" << endl;
+		//	//drag = true;
+		//}
+		//
+		////if(drag){
+		//	cout << "X diff: " << prevPos.x - currentPos.x << " Y diff: " << prevPos.y - currentPos.y << endl;
+		//	currentPos = ImVec2(0, 0);
+		//	//drag = false;
+		////}
+		
+
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -147,7 +211,6 @@ int main(int, char**)
 
 		// Draw Menu
 		menuDraw();
-
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;
@@ -157,7 +220,7 @@ int main(int, char**)
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		draw();
+		draw(view);
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwMakeContextCurrent(window);

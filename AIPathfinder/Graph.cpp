@@ -56,8 +56,9 @@ void Graph::createCircle(glm::vec2 pos, glm::vec4 color, int num)
 	GLfloat twicePi = 2.0f * 3.14159265359;
 
 	glm::vec2 circleCentre = pos;
-	const int numOfVertices = 8;
-	const float radius = 8;
+	const int numOfVertices = 46;
+	numOfCircleVertex = numOfVertices;
+	const float radius = 10;
 	GLfloat circleCoords[numOfVertices * 3];
 
 	// Calculate the points of the circle
@@ -72,7 +73,7 @@ void Graph::createCircle(glm::vec2 pos, glm::vec4 color, int num)
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 
-	glBindVertexArray(vertexVAO[num]); //*&
+	glBindVertexArray(vertexVAO[num]);
 
 	// Pass vertex (circle points) into the shader
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -164,18 +165,24 @@ Graph::Graph(const char * filename)
 	}
 }
 
-void Graph::draw()
+void Graph::scale(float scaleAmount) 
+{
+	m_modelMat = glm::scale(m_modelMat, glm::vec3(scaleAmount, scaleAmount, 0));
+}
+
+void Graph::draw(glm::mat4 view)
 {
 	m_shader->use();
 	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 720.0f, 0.0f, -1.0f, 1.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgProj"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgView"), 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(glGetUniformLocation(m_shader->getID(), "imgModel"), 1, GL_FALSE, glm::value_ptr(m_modelMat));
 
 	for (int i = 0; i < m_vertices.size(); i++) {
 		glBindVertexArray(vertexVAO[i]);
-		glDrawArrays(GL_LINE_LOOP, 0, 8);
+		glDrawArrays(GL_LINE_LOOP, 0, numOfCircleVertex);
 		glBindVertexArray(0);
 	}
 

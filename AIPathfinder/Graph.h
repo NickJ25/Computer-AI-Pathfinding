@@ -39,6 +39,8 @@ private:
 	Shader* m_shader;
 
 	GLuint *vertexVAO, *edgeVAO;
+	int numOfCircleVertex;
+	glm::mat4 m_modelMat = glm::mat4(1.0);
 
 	void createCircle(glm::vec2 pos, glm::vec4 color, int num);
 	void createLine(glm::vec2 start, glm::vec2 end, glm::vec4 colour, int num);
@@ -50,6 +52,7 @@ public:
 
 	Graph(const char* filename);
 	~Graph();
-	void draw();
+	void scale(float scaleAmount);
+	void draw(glm::mat4 view);
 	void find(algorithm algo, int start, int end);
 };
