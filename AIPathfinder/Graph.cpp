@@ -30,25 +30,12 @@ void Graph::parseFile(const char * filename)
 		int start = NULL, end = NULL, fs2 = NULL, cost = NULL;
 		sscanf(str.c_str(), "%d--%d [fontsize=\"%d\",label=\"%d\"];", &start, &end, &fs2, &cost);
 		if (end + fs2 + cost != 0) {
-			// Create an edge and push it into vector
-			Edge n;
-			n.from = &m_vertices[start];
+			// Add children to vertices
 			m_vertices[start].child.push_back(m_vertices[end]);
-			n.to = &m_vertices[end];
-			n.cost = cost;
-			m_edges.push_back(n);
+			m_childCount++;
 		}
 	}
 	std::cout << m_vertices.size() << " vertices found!" << std::endl;
-	std::cout << m_edges.size() << " edges found!" << std::endl;
-
-	//for (int i = 0; i < m_vertices.size(); i++) {
-	//	std::cout << "=================================================================" << std::endl;
-	//	std::cout << "[" << m_vertices[i].label << "]\tPOS: (" << m_vertices[i].position.x << "," << m_vertices[i].position.y << ")\n" << std::endl;
-	//	for (int j = 0; j < m_vertices[i].child.size(); j++) {
-	//		std::cout << "\t[" << j << "] " << m_vertices[i].child[j].label << std::endl;
-	//	}
-	//}
 }
 
 void Graph::createCircle(glm::vec2 pos, glm::vec4 color, int num)
@@ -150,19 +137,24 @@ Graph::Graph(const char * filename)
 
 	vertexVAO = new GLuint[m_vertices.size()];
 	glGenVertexArrays(m_vertices.size(), vertexVAO);
-	edgeVAO = new GLuint[m_edges.size()];
-	glGenVertexArrays(m_edges.size(), edgeVAO);
+	edgeVAO = new GLuint[m_childCount];
+	glGenVertexArrays(m_childCount, edgeVAO);
+
+	int vaochildCount= 0;
 
 	// Draw Vertex
 	for (int i = 0; i < m_vertices.size(); i++) {
 		createCircle(m_vertices[i].position, checkColour(m_vertices[i].vertexStatus), i);
 		m_vertices[0].vertexStatus = ACTIVE;
+		for (int j = 0; j < m_vertices[i].child.size(); j++){
+			vaochildCount++;
+			createLine(m_vertices[i].position, m_vertices[i].child[j].position, glm::vec4(1, 1, 1, 0.5), vaochildCount);
+		}
 	}
+}
 
-	// Draw Edge
-	for (int i = 0; i < m_edges.size(); i++) {
-		createLine(m_edges[i].from->position, m_edges[i].to->position, glm::vec4(1, 1, 1, 0.5), i);
-	}
+Graph::~Graph()
+{
 }
 
 void Graph::scale(float scaleAmount) 
@@ -186,7 +178,7 @@ void Graph::draw(glm::mat4 view)
 		glBindVertexArray(0);
 	}
 
-	for (int i = 0; i < m_edges.size(); i++) {
+	for (int i = 0; i < m_childCount; i++) {
 		glBindVertexArray(edgeVAO[i]);
 		glDrawArrays(GL_LINES, 0, 2);
 		glBindVertexArray(0);

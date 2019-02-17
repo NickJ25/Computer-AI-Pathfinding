@@ -25,14 +25,8 @@ private:
 		status vertexStatus;
 	};
 
-	struct Edge {
-		Vertex* from;
-		Vertex* to;
-		int cost;
-	};
-
 	std::vector<Vertex> m_vertices;
-	std::vector<Edge> m_edges;
+	unsigned int m_childCount = 0;
 
 	void parseFile(const char* filename);
 	std::ifstream m_graphFile;
