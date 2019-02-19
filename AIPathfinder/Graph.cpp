@@ -30,8 +30,13 @@ void Graph::parseFile(const char * filename)
 		int start = NULL, end = NULL, fs2 = NULL, cost = NULL;
 		sscanf(str.c_str(), "%d--%d [fontsize=\"%d\",label=\"%d\"];", &start, &end, &fs2, &cost);
 		if (end + fs2 + cost != 0) {
-			// Add children to vertices
-			m_vertices[start].child.push_back(m_vertices[end]);
+			// Create an edge and push it into vector
+			Edge n;
+			n.end = &m_vertices[end];
+			n.cost = cost;
+			n.edgeStatus = INACTIVE;
+			// Connect edge to vertex
+			m_vertices[start].edges.push_back(n);
 			m_childCount++;
 		}
 	}
@@ -130,6 +135,49 @@ glm::vec4 Graph::checkColour(status sta)
 	return color;
 }
 
+void Graph::colorReset()
+{
+	for (int i = 0; i < m_vertices.size(); i++) {
+		m_vertices[i].vertexStatus = INACTIVE;
+		//glm::vec4 vColour = checkColour(m_vertices[i].vertexStatus);
+		//glUniform4f(glGetUniformLocation(m_shader->getID(), "color"), vColour.x, vColour.y, vColour.z, vColour.w);
+		for (int j = 0; j < m_vertices[i].edges.size(); j++) {
+			m_vertices[i].edges[j].edgeStatus = INACTIVE;
+		}
+	}
+}
+
+// Based on the A* algorithm by Red Blob Games (https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+void Graph::astarFind(int start, int end)
+{
+	PriorityQueue<int, int> frontier;
+	frontier.put(start, 0);
+	std::vector<Vertex*> came_from;
+	came_from[start] = NULL;
+	std::vector<int> cost_so_far;
+	cost_so_far[start] = 0;
+	
+	m_vertices[start].vertexStatus = START;
+	m_vertices[end].vertexStatus = TARGET;
+	int current;
+	
+	while (!frontier.empty()) {
+		current = frontier.get();
+		if (current == end) {
+			std::cout << "Path found!" << std::endl;
+			break;
+		}
+
+		for (int i = 0; m_vertices[current].edges.size(); i++) {
+			int new_cost = cost_so_far[current] + m_vertices[current].edges[i].cost;
+			if (cost_so_far[ || new_cost < cost_so_far[i + 1]) {
+				cost_so_far[i + 1] = new_cost;
+				int priority = new_cost
+			}
+		}
+	}
+}
+
 Graph::Graph(const char * filename)
 {
 	m_shader = new Shader("Shaders/Image.vert", "Shaders/Image.frag");
@@ -141,14 +189,14 @@ Graph::Graph(const char * filename)
 	glGenVertexArrays(m_childCount, edgeVAO);
 
 	int vaochildCount= 0;
-
 	// Draw Vertex
 	for (int i = 0; i < m_vertices.size(); i++) {
 		createCircle(m_vertices[i].position, checkColour(m_vertices[i].vertexStatus), i);
 		m_vertices[0].vertexStatus = ACTIVE;
-		for (int j = 0; j < m_vertices[i].child.size(); j++){
+		std::cout << "Vertex " << i << " count: " << m_vertices[i].edges.size() << std::endl;
+		for (int j = 0; j < m_vertices[i].edges.size(); j++) {
 			vaochildCount++;
-			createLine(m_vertices[i].position, m_vertices[i].child[j].position, glm::vec4(1, 1, 1, 0.5), vaochildCount);
+			createLine(m_vertices[i].position, m_vertices[i].edges[j].end->position, checkColour(m_vertices[i].edges[j].edgeStatus), vaochildCount);
 		}
 	}
 }
@@ -157,7 +205,12 @@ Graph::~Graph()
 {
 }
 
-void Graph::scale(float scaleAmount) 
+int Graph::getVertexCount()
+{
+	return m_vertices.size();
+}
+
+void Graph::scale(float scaleAmount)
 {
 	m_modelMat = glm::scale(m_modelMat, glm::vec3(scaleAmount, scaleAmount, 0));
 }
@@ -175,16 +228,30 @@ void Graph::draw(glm::mat4 view)
 	for (int i = 0; i < m_vertices.size(); i++) {
 		glBindVertexArray(vertexVAO[i]);
 		glDrawArrays(GL_LINE_LOOP, 0, numOfCircleVertex);
+		glm::vec4 vColour = checkColour(m_vertices[i].vertexStatus);
+		glUniform4f(glGetUniformLocation(m_shader->getID(), "color"), vColour.x, vColour.y, vColour.z, vColour.w);
 		glBindVertexArray(0);
 	}
 
 	for (int i = 0; i < m_childCount; i++) {
 		glBindVertexArray(edgeVAO[i]);
 		glDrawArrays(GL_LINES, 0, 2);
+		for (int i = 0; i < m_vertices.size(); i++){
+			for (int j = 0; j < m_vertices[i].edges.size(); j++) {
+				glm::vec4 eColour = checkColour(m_vertices[i].edges[j].edgeStatus);
+					glUniform4f(glGetUniformLocation(m_shader->getID(), "color"), eColour.x, eColour.y, eColour.z, eColour.w);
+			}
+		}
 		glBindVertexArray(0);
 	}
 }
 
 void Graph::find(algorithm algo, int start, int end)
 {
+	colorReset();
+	switch (algo) {
+	case A_STAR:
+		astarFind(start, end);
+		break;
+	}
 }

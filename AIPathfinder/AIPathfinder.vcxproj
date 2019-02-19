@@ -131,6 +131,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AStar.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="vendors\imconfig.h" />

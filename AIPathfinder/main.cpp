@@ -51,18 +51,22 @@ void menuDraw() {
 	ImGui::Combo("Algorithm", &item_current, items, IM_ARRAYSIZE(items));
 
 	// Start Node
-	static char str0[2] = "A";
+	static int startNode = 1;
+	if (startNode < 0) startNode = mainGraph->getVertexCount();
+	else if (startNode > mainGraph->getVertexCount()) startNode = 0;
 	ImGui::PushItemWidth(100);
-	ImGui::InputText("Start Node", str0, IM_ARRAYSIZE(str0));
+	ImGui::InputInt("Start Node", &startNode);
 
 	// End Node
+	static int endNode = 2;
+	if (endNode < 0) endNode = mainGraph->getVertexCount();
+	else if (endNode > mainGraph->getVertexCount()) endNode = 0;
 	ImGui::PushItemWidth(100);
-	static char str1[2] = "B";
-	ImGui::InputText("End Node", str1, IM_ARRAYSIZE(str1));
+	ImGui::InputInt("End Node", &endNode);
 
 	// Find Button
 	if (ImGui::Button("Find")) {
-
+		mainGraph->find(Graph::A_STAR, startNode, endNode);
 	}
 	ImGui::SameLine();
 	// About Button
