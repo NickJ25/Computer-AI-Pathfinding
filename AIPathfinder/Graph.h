@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 #include "Shader.h"
 
+
 class Graph {
 private:
 	// Priority Queue for pathfinding algorithms by Red Blob Games (https://www.redblobgames.com/pathfinding/a-star/implementation.html#cpp-dijkstra)
@@ -52,6 +53,7 @@ private:
 	struct Edge {
 		Vertex* end;
 		int cost;
+		int edgeNum;
 		status edgeStatus;
 	};
 
@@ -73,6 +75,7 @@ private:
 
 	void colorReset();
 	void astarFind(int start, int end);
+	int heuristic(glm::vec2 a, glm::vec2 b);
 public:
 	Graph(const char* filename);
 	~Graph();

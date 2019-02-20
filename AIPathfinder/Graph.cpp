@@ -35,8 +35,16 @@ void Graph::parseFile(const char * filename)
 			n.end = &m_vertices[end];
 			n.cost = cost;
 			n.edgeStatus = INACTIVE;
-			// Connect edge to vertex
+			// Connect edge to start vertex
 			m_vertices[start].edges.push_back(n);
+			m_childCount++;
+
+			Edge m;
+			m.end = &m_vertices[start];
+			m.cost = cost;
+			m.edgeStatus = INACTIVE;
+			m_vertices[end].edges.push_back(m);
+
 			m_childCount++;
 		}
 	}
@@ -147,35 +155,72 @@ void Graph::colorReset()
 	}
 }
 
+int Graph::heuristic(glm::vec2 a, glm::vec2 b)
+{
+	return abs(a.x - b.x) + abs(a.y - b.y);
+}
+
 // Based on the A* algorithm by Red Blob Games (https://www.redblobgames.com/pathfinding/a-star/introduction.html)
 void Graph::astarFind(int start, int end)
 {
 	PriorityQueue<int, int> frontier;
 	frontier.put(start, 0);
-	std::vector<Vertex*> came_from;
-	came_from[start] = NULL;
+	std::vector<int> came_from;
+	came_from.resize(m_vertices.size());
+	came_from[start] = 0;
 	std::vector<int> cost_so_far;
+	cost_so_far.resize(m_vertices.size());
 	cost_so_far[start] = 0;
-	
-	m_vertices[start].vertexStatus = START;
-	m_vertices[end].vertexStatus = TARGET;
+
 	int current;
-	
+
 	while (!frontier.empty()) {
 		current = frontier.get();
 		if (current == end) {
 			std::cout << "Path found!" << std::endl;
 			break;
 		}
-
-		for (int i = 0; m_vertices[current].edges.size(); i++) {
-			int new_cost = cost_so_far[current] + m_vertices[current].edges[i].cost;
-			if (cost_so_far[ || new_cost < cost_so_far[i + 1]) {
-				cost_so_far[i + 1] = new_cost;
-				int priority = new_cost
+		else {
+			std::cout << "Current Vertex: " << current << std::endl;
+			for (int i = 0; i < m_vertices[current].edges.size(); i++) {
+				int next = m_vertices[current].edges[i].end->label;
+				int new_cost = cost_so_far[current] + m_vertices[current].edges[i].cost;
+				if (cost_so_far[next] == NULL || new_cost < cost_so_far[next]) {
+					cost_so_far[next] = new_cost;
+					int priority = new_cost + heuristic(m_vertices[end].position, m_vertices[next].position);
+					frontier.put(next, priority);
+					came_from[next] = current;
+				}
 			}
 		}
 	}
+	int r_current = end;
+	std::cout << "End: " << end << std::endl;
+	for (int i = 0; i < came_from.size(); i++) {
+		if(r_current == start){
+			std::cout << r_current << std::endl;
+			std::cout << "Boop" << std::endl;
+			break;
+		}
+		else {
+			m_vertices[r_current].vertexStatus = ACTIVE;
+			int next = came_from[r_current];
+			for (int j = 0; j < m_vertices[r_current].edges.size(); j++) {
+				if (m_vertices[r_current].edges[j].end->label == next) {
+					m_vertices[r_current].edges[j].edgeStatus = ACTIVE;
+				}
+			}
+			for (int j = 0; j < m_vertices[next].edges.size(); j++) {
+				if (m_vertices[next].edges[j].end->label == r_current) {
+					m_vertices[next].edges[j].edgeStatus = ACTIVE;
+				}
+			}
+			r_current = next;
+		}
+	}
+
+	m_vertices[start].vertexStatus = START;
+	m_vertices[end].vertexStatus = TARGET;
 }
 
 Graph::Graph(const char * filename)
@@ -192,10 +237,9 @@ Graph::Graph(const char * filename)
 	// Draw Vertex
 	for (int i = 0; i < m_vertices.size(); i++) {
 		createCircle(m_vertices[i].position, checkColour(m_vertices[i].vertexStatus), i);
-		m_vertices[0].vertexStatus = ACTIVE;
-		std::cout << "Vertex " << i << " count: " << m_vertices[i].edges.size() << std::endl;
 		for (int j = 0; j < m_vertices[i].edges.size(); j++) {
 			vaochildCount++;
+			m_vertices[i].edges[j].edgeNum = vaochildCount;
 			createLine(m_vertices[i].position, m_vertices[i].edges[j].end->position, checkColour(m_vertices[i].edges[j].edgeStatus), vaochildCount);
 		}
 	}
@@ -227,21 +271,23 @@ void Graph::draw(glm::mat4 view)
 
 	for (int i = 0; i < m_vertices.size(); i++) {
 		glBindVertexArray(vertexVAO[i]);
-		glDrawArrays(GL_LINE_LOOP, 0, numOfCircleVertex);
 		glm::vec4 vColour = checkColour(m_vertices[i].vertexStatus);
 		glUniform4f(glGetUniformLocation(m_shader->getID(), "color"), vColour.x, vColour.y, vColour.z, vColour.w);
+		glEnable(GL_LINE_SMOOTH);
+		glLineWidth(4);
+		glDrawArrays(GL_LINE_LOOP, 0, numOfCircleVertex);
 		glBindVertexArray(0);
 	}
 
 	for (int i = 0; i < m_childCount; i++) {
 		glBindVertexArray(edgeVAO[i]);
-		glDrawArrays(GL_LINES, 0, 2);
 		for (int i = 0; i < m_vertices.size(); i++){
 			for (int j = 0; j < m_vertices[i].edges.size(); j++) {
 				glm::vec4 eColour = checkColour(m_vertices[i].edges[j].edgeStatus);
 					glUniform4f(glGetUniformLocation(m_shader->getID(), "color"), eColour.x, eColour.y, eColour.z, eColour.w);
 			}
 		}
+		glDrawArrays(GL_LINES, 0, 2);
 		glBindVertexArray(0);
 	}
 }
